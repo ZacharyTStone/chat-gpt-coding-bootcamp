@@ -1,91 +1,208 @@
+"use client"
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from './page.module.css'
-
+import { useState } from 'react'
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+
+  const [question, setQuestion] = useState('')
+
+  const [answer, setAnswer] = useState('')
+
+  const [loading, setLoading] = useState(false)
+
+  const [error, setError] = useState('')
+  const bootcampTypes = [
+    {
+      label : 'Web Dev React Bootcamp',
+      value :[
+        'HTML',
+        'CSS',
+        'JavaScript',
+        'React',
+        'Node.js',
+        'MongoDB',
+        'Express',
+  
+      ]
+    },
+    {
+      label : 'Web Dev Python Bootcamp',
+      value :[
+        'HTML',
+        'CSS',
+        'JavaScript',
+        'Python',
+        'Django',
+        'PostgreSQL',
+        'Express',
+  
+      ]
+    },
+    {
+      label : 'Web Dev Java Bootcamp',
+      value :[
+        'HTML',
+        'CSS',
+        'JavaScript',
+        'Java',
+        'Spring',
+        'PostgreSQL',
+        'Express',
+  
+  
+      ]
+    },
+    {
+      label : 'Web Dev C# Bootcamp',
+      value :[
+        'HTML',
+        'CSS',
+        'JavaScript',
+        'C#',
+        'ASP.NET',
+        'PostgreSQL',
+        'Express',
+  
+      ]
+    },
+    {
+      label : 'Web Dev Ruby Bootcamp', 
+      value :[
+        'HTML',
+        'CSS',
+        'JavaScript',
+        'Ruby',
+        'Ruby on Rails',
+        'PostgreSQL',
+        'Express',
+          
+      ] 
+    }
+  ];
+
+  const [selectedTechnologies, setSelectedTechnologies] = useState(
+    bootcampTypes[0].value
+  ) as any;
+
+  const [selectedAnswerType, setSelectedAnswerType] = useState("") as any;
+
+
+
+
+  
+  
+
+const handleSubmit = async () => {
+
+   const prompt = buildPrompt({
+    question,
+    selectedTechnologies,
+    answerType: selectedAnswerType,
+   })
+
+   const response = await fetch("/api/generate_response", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt,
+    }),
+  })
+
+  const { data } = await response.json()
+
+  setAnswer(data)
+
+} ;
+
+const answerTypes = [
+  "non technical",
+  "technical",
+  "factual",
+] ;
+
+const initial_prompt = "you are a coding bootcamp instrutor. "
+
+const buildPrompt = ({
+  question,
+  selectedTechnologies,
+  answerType,
+} : 
+{
+  question: string,
+  selectedTechnologies: string[],
+  answerType: string,
+}
+) => {
+
+  let prompt = initial_prompt
+
+   prompt += "You are teaching a class on " + selectedTechnologies.map((technology) => technology).join(', ') + ". "
+
+   switch (answerType) {
+    case "non technical":
+      prompt += "Your students ask you " + question + ". " + "provide them a real world non technical example to help them understand that."
+
+      break;
+    case "technical":
+      prompt += "Your students ask you " + question + ". " + "provide them a technical example to help them understand that. try to limit the technical example to the technologies you are teaching."
+
+      break;
+
+    case "factual":
+      prompt += "Your students ask you " + question + ". " + "provide them a factual and objective answer to help them understand that better."
+
+      break;
+
+    default:
+      break;
+  }
+
+  return prompt
+}
+
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+       <h1>
+         Welcome to Chat GPT's BrainStorm Acadamy Coding Bootcamp
+       </h1>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
+       <select 
+        
+        onChange = {e => setSelectedTechnologies(e.target.value )}
+        value = {
+          selectedTechnologies
+        }
         >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+          {bootcampTypes.map((bootcampType) => (
+            <option key={bootcampType.label} value={bootcampType.value}>
+              {bootcampType.label}
+            </option>
+          ))}
+        </select>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
+        
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+        <h2>Ask a question</h2>
+
+        <input type="text" value={question} onChange={e => setQuestion(e.target.value)} />
+
+        <button onClick = {() => handleSubmit()}>Submit</button>
+
+        <p>{answer}</p>
+
+        
+        {
+          error && <p>{error}</p>
+        }
+       
+
+
     </main>
   )
 }
